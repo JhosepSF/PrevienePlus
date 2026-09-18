@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Panel de Aprendizaje | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Welcome Card -->
+    <div class="glass-card p-4 p-md-5 mb-4 shadow-sm border-0 position-relative overflow-hidden">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary-subtle text-primary border mb-2 px-3 py-1.5 rounded-pill fw-semibold">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Sesión Activa de Aprendizaje
+                </span>
+                <h2 class="display-6 fw-extrabold text-dark mb-2">
+                    ¡Bienvenido(a), <span class="text-primary">{{ profile.student_code }}</span>!
+                </h2>
+                <p class="text-muted mb-0" style="font-size: 1.05rem;">
+                    Sigue los pasos secuenciales a continuación para completar tu participación en la investigación educativa de prevención de ITS.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="d-inline-block text-start p-3 bg-light rounded-4 border">
+                    <div class="text-muted small fw-semibold text-uppercase letter-spacing-1">Grupo Asignado</div>
+                    <div class="fw-bold fs-6 text-dark mt-0.5">
+                        {% if profile.is_experimental %}
+                            <span class="badge bg-primary px-3 py-1.5 rounded-pill"><i class="bi bi-stars me-1"></i> Grupo Experimental</span>
+                        {% else %}
+                            <span class="badge bg-secondary px-3 py-1.5 rounded-pill"><i class="bi bi-book me-1"></i> Grupo Control</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Experimental Stages Roadmap -->
+    <h4 class="fw-bold text-dark mb-3"><i class="bi bi-signpost-split-fill text-primary me-2"></i>Ruta del Estudio</h4>
+
+    <div class="row g-4">
+        <!-- Step 1: Pretest -->
+        <div class="col-md-4">
+            <div class="stage-card h-100 {% if pretest_done %}completed{% elif profile.stage == 'PRETEST' %}active{% else %}locked{% endif %} d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="stage-step-number {% if pretest_done %}bg-success text-white{% elif profile.stage == 'PRETEST' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}">
+                            {% if pretest_done %}<i class="bi bi-check-lg"></i>{% else %}1{% endif %}
+                        </div>
+                        <span class="badge {% if pretest_done %}bg-success-subtle text-success border border-success{% elif profile.stage == 'PRETEST' %}bg-primary-subtle text-primary border border-primary{% else %}bg-secondary-subtle text-secondary{% endif %} rounded-pill px-3 py-1.5">
+                            {% if pretest_done %}Completado ✓{% elif profile.stage == 'PRETEST' %}En Curso →{% else %}Pendiente{% endif %}
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">Evaluación Inicial (Pretest)</h5>
+                    <p class="text-muted small mb-3">
+                        Cuestionario inicial para evaluar tus conocimientos previos y prácticas de autocuidado frente a las ITS.
+                    </p>
+                </div>
+
+                <div class="pt-3 border-top">
+                    {% if pretest_done %}
+                        <a href="{% url 'evaluations:summary' assessment_type='pretest' %}" class="btn btn-outline-success w-100 rounded-pill btn-sm fw-semibold">
+                            <i class="bi bi-eye-fill me-1"></i> Ver Confirmación
+                        </a>
+                    {% elif profile.stage == 'PRETEST' %}
+                        <a href="{% url 'evaluations:take_assessment' assessment_type='pretest' %}" class="btn btn-primary-gradient w-100 rounded-pill btn-sm fw-semibold">
+                            <i class="bi bi-pencil-square me-1"></i> Iniciar Pretest
+                        </a>
+                    {% else %}
+                        <button class="btn btn-light w-100 rounded-pill btn-sm text-muted" disabled>
+                            <i class="bi bi-lock-fill me-1"></i> No disponible
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Educational Intervention (Previene+ for Exp / Traditional for Ctr) -->
+        <div class="col-md-4">
+            <div class="stage-card h-100 {% if profile.intervention_completed or profile.stage == 'POSTEST' or profile.stage == 'COMPLETED' %}completed{% elif profile.stage == 'INTERVENTION' and profile.is_experimental %}active{% else %}locked{% endif %} d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="stage-step-number {% if profile.intervention_completed or profile.stage == 'POSTEST' or profile.stage == 'COMPLETED' %}bg-success text-white{% elif profile.stage == 'INTERVENTION' %}bg-info text-white{% else %}bg-secondary text-white{% endif %}">
+                            {% if profile.intervention_completed or profile.stage == 'POSTEST' or profile.stage == 'COMPLETED' %}<i class="bi bi-check-lg"></i>{% else %}2{% endif %}
+                        </div>
+                        <span class="badge {% if profile.intervention_completed or profile.stage == 'POSTEST' or profile.stage == 'COMPLETED' %}bg-success-subtle text-success border border-success{% elif profile.stage == 'INTERVENTION' %}bg-info-subtle text-info border border-info{% else %}bg-secondary-subtle text-secondary{% endif %} rounded-pill px-3 py-1.5">
+                            {% if profile.intervention_completed or profile.stage == 'POSTEST' or profile.stage == 'COMPLETED' %}Completado ✓{% elif profile.stage == 'INTERVENTION' %}Activo Ahora 🚀{% else %}Bloqueado 🔒{% endif %}
+                        </span>
+                    </div>
+
+                    {% if profile.is_experimental %}
+                        <h5 class="fw-bold text-dark mb-2">Intervención: Previene+ IA</h5>
+                        <p class="text-muted small mb-3">
+                            Interactúa con el chatbot educativo para resolver tus dudas sobre prevención de ITS con datos de MINSA/OMS.
+                        </p>
+                    {% else %}
+                        <h5 class="fw-bold text-dark mb-2">Intervención Tradicional</h5>
+                        <p class="text-muted small mb-3">
+                            Sesión formativa presencial con materiales educativos y guía del facilitador.
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="pt-3 border-top">
+                    {% if profile.is_experimental %}
+                        {% if profile.can_access_intervention %}
+                            <a href="{% url 'chatbot:chat' %}" class="btn btn-teal-gradient w-100 rounded-pill btn-sm fw-semibold">
+                                <i class="bi bi-chat-dots-fill me-1"></i> Abrir Chatbot Previene+
+                            </a>
+                        {% else %}
+                            <button class="btn btn-light w-100 rounded-pill btn-sm text-muted" disabled>
+                                <i class="bi bi-lock-fill me-1"></i> Requiere Pretest
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-secondary py-1.5 px-2 mb-0 text-center small">
+                            <i class="bi bi-info-circle me-1"></i> Actividad en aula
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Postest -->
+        <div class="col-md-4">
+            <div class="stage-card h-100 {% if postest_done %}completed{% elif profile.stage == 'POSTEST' %}active{% else %}locked{% endif %} d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="stage-step-number {% if postest_done %}bg-success text-white{% elif profile.stage == 'POSTEST' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}">
+                            {% if postest_done %}<i class="bi bi-check-lg"></i>{% else %}3{% endif %}
+                        </div>
+                        <span class="badge {% if postest_done %}bg-success-subtle text-success border border-success{% elif profile.stage == 'POSTEST' %}bg-primary-subtle text-primary border border-primary{% else %}bg-secondary-subtle text-secondary{% endif %} rounded-pill px-3 py-1.5">
+                            {% if postest_done %}Completado ✓{% elif profile.stage == 'POSTEST' %}Habilitado 🔓{% else %}Bloqueado 🔒{% endif %}
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">Evaluación Final (Postest)</h5>
+                    <p class="text-muted small mb-3">
+                        Cuestionario final para medir la consolidación de aprendizajes y conocimientos preventivos adquiridos.
+                    </p>
+                </div>
+
+                <div class="pt-3 border-top">
+                    {% if postest_done %}
+                        <a href="{% url 'evaluations:summary' assessment_type='postest' %}" class="btn btn-outline-success w-100 rounded-pill btn-sm fw-semibold">
+                            <i class="bi bi-check-all me-1"></i> Estudio Completado
+                        </a>
+                    {% elif profile.can_access_postest %}
+                        <a href="{% url 'evaluations:take_assessment' assessment_type='postest' %}" class="btn btn-primary-gradient w-100 rounded-pill btn-sm fw-semibold">
+                            <i class="bi bi-pencil-square me-1"></i> Iniciar Postest
+                        </a>
+                    {% else %}
+                        <button class="btn btn-light w-100 rounded-pill btn-sm text-muted" disabled>
+                            <i class="bi bi-lock-fill me-1"></i> Completa etapas previas
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safety & Support Helpline Card -->
+    <div class="glass-card p-4 mt-4 border-0">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="badge bg-danger-subtle text-danger p-3 rounded-circle fs-4">
+                    <i class="bi bi-telephone-plus-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-1">¿Tienes dudas o requieres orientación médica especializada?</h6>
+                    <p class="text-muted small mb-0">La <strong>Línea 113 Salud del MINSA</strong> brinda atención gratuita, profesional y confidencial las 24 horas.</p>
+                </div>
+            </div>
+            <a href="tel:113" class="btn btn-outline-danger btn-sm rounded-pill px-3 text-nowrap fw-semibold">
+                <i class="bi bi-telephone-fill me-1"></i> Llamar al 113 (Opción 3)
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

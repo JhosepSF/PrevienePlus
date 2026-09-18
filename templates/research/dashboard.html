@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Investigación y Métricas | Previene+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <span class="badge bg-dark text-white px-3 py-1.5 rounded-pill mb-1">
+                <i class="bi bi-graph-up-arrow me-1"></i> Estudio Cuasiexperimental
+            </span>
+            <h2 class="display-6 fw-extrabold text-dark mb-0">Panel de Control del Investigador</h2>
+            <p class="text-muted small mb-0">{{ settings.study_title }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'research:student_list' %}" class="btn btn-outline-primary rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-people-fill me-1"></i> Gestionar Participantes
+            </a>
+            <a href="/admin/" target="_blank" class="btn btn-dark rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-database-fill-gear me-1"></i> Django Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card kpi-blue h-100">
+                <div class="text-muted small fw-semibold text-uppercase">Total Participantes (N)</div>
+                <div class="d-flex align-items-baseline gap-2 mt-2">
+                    <span class="kpi-value text-primary">{{ total_students }}</span>
+                    <span class="text-muted small">estudiantes</span>
+                </div>
+                <div class="d-flex gap-2 mt-3 pt-2 border-top small text-muted">
+                    <span>Exp: <strong>{{ exp_students }}</strong></span> • 
+                    <span>Ctr: <strong>{{ ctr_students }}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card kpi-teal h-100">
+                <div class="text-muted small fw-semibold text-uppercase">Pretest Completados</div>
+                <div class="d-flex align-items-baseline gap-2 mt-2">
+                    <span class="kpi-value" style="color: #0d9488;">{{ pre_total_count }}</span>
+                    <span class="text-muted small">/ {{ total_students }}</span>
+                </div>
+                <div class="d-flex gap-2 mt-3 pt-2 border-top small text-muted">
+                    <span>Exp: <strong>{{ pre_exp_count }}</strong></span> • 
+                    <span>Ctr: <strong>{{ pre_ctr_count }}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card kpi-purple h-100">
+                <div class="text-muted small fw-semibold text-uppercase">Postest Completados</div>
+                <div class="d-flex align-items-baseline gap-2 mt-2">
+                    <span class="kpi-value text-purple" style="color: #7c3aed;">{{ post_total_count }}</span>
+                    <span class="text-muted small">/ {{ total_students }}</span>
+                </div>
+                <div class="d-flex gap-2 mt-3 pt-2 border-top small text-muted">
+                    <span>Exp: <strong>{{ post_exp_count }}</strong></span> • 
+                    <span>Ctr: <strong>{{ post_ctr_count }}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card kpi-amber h-100">
+                <div class="text-muted small fw-semibold text-uppercase">Interacciones Previene+</div>
+                <div class="d-flex align-items-baseline gap-2 mt-2">
+                    <span class="kpi-value text-amber" style="color: #d97706;">{{ total_user_questions }}</span>
+                    <span class="text-muted small">preguntas</span>
+                </div>
+                <div class="d-flex gap-2 mt-3 pt-2 border-top small text-muted">
+                    <span>Sesiones: <strong>{{ total_chat_sessions }}</strong></span> • 
+                    <span>Prom: <strong>{{ avg_questions_per_user }}</strong>/est</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparative Descriptive Statistics Matrix -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-calculator-fill text-primary me-2"></i>Comparación Descriptiva: Pretest vs Postest
+                    </h5>
+                    <span class="badge bg-light text-muted border">Medias aritméticas por grupo</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start">Grupo de Estudio</th>
+                                <th>Pretest (Prom.)</th>
+                                <th>Dim. 1 (Conocimientos)</th>
+                                <th>Dim. 2 (Prácticas)</th>
+                                <th>Postest (Prom.)</th>
+                                <th>Ganancia / Delta (&Delta;)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start fw-bold">
+                                    <span class="badge bg-primary me-1">EXP</span> Grupo Experimental (Previene+)
+                                </td>
+                                <td class="fw-bold text-dark">{{ pre_exp_avg.tot|default:"0.00"|floatformat:2 }} pts</td>
+                                <td class="text-muted">{{ pre_exp_avg.d1|default:"0.00"|floatformat:2 }}</td>
+                                <td class="text-muted">{{ pre_exp_avg.d2|default:"0.00"|floatformat:2 }}</td>
+                                <td class="fw-bold text-success">{{ post_exp_avg.tot|default:"-"|floatformat:2 }} pts</td>
+                                <td>
+                                    {% if delta_exp_tot > 0 %}
+                                        <span class="badge bg-success-subtle text-success border border-success px-2.5 py-1 fw-bold">
+                                            +{{ delta_exp_tot }} pts 📈
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">{{ delta_exp_tot }} pts</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold">
+                                    <span class="badge bg-secondary me-1">CTR</span> Grupo Control (Tradicional)
+                                </td>
+                                <td class="fw-bold text-dark">{{ pre_ctr_avg.tot|default:"0.00"|floatformat:2 }} pts</td>
+                                <td class="text-muted">{{ pre_ctr_avg.d1|default:"0.00"|floatformat:2 }}</td>
+                                <td class="text-muted">{{ pre_ctr_avg.d2|default:"0.00"|floatformat:2 }}</td>
+                                <td class="fw-bold text-dark">{{ post_ctr_avg.tot|default:"-"|floatformat:2 }} pts</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border px-2.5 py-1">
+                                        {{ delta_ctr_tot }} pts
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3 p-3 bg-light rounded-3 text-muted small">
+                    <i class="bi bi-info-circle me-1 text-primary"></i> <strong>Nota metodológica:</strong> 
+                    Los datos presentados son de naturaleza descriptiva inicial. 
+                    Para realizar inferencias causales y pruebas de significancia estadística (t de Student para muestras emparejadas / independientes o Wilcoxon/Mann-Whitney), 
+                    descarga el archivo en el Centro de Exportación a continuación y procésalo en SPSS, R, Jamovi o Stata.
+                </div>
+            </div>
+        </div>
+
+        <!-- Chatbot Engagement & Topics -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4 h-100 shadow-sm">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-pie-chart-fill text-info me-2"></i>Temáticas más Consultadas
+                </h5>
+
+                {% if top_topics %}
+                    <div class="d-flex flex-column gap-2.5">
+                        {% for topic, count in top_topics %}
+                            <div class="p-2.5 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-dark small">{{ topic }}</span>
+                                <span class="badge bg-primary rounded-pill px-2.5 py-1">{{ count }} consultas</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4 small">
+                        <i class="bi bi-chat-square-dots fs-3 d-block mb-1"></i>
+                        Aún no se registran consultas temáticas en el chatbot.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Center & Experimental Stages Control -->
+    <div class="row g-4 mb-4">
+        <!-- Export Center -->
+        <div class="col-lg-7">
+            <div class="glass-card p-4 shadow-sm h-100">
+                <h5 class="fw-bold text-dark mb-2">
+                    <i class="bi bi-cloud-arrow-down-fill text-primary me-2"></i>Centro de Exportación de Datos Científicos
+                </h5>
+                <p class="text-muted small mb-4">
+                    Descarga datasets formateados para análisis estadístico (con etiquetas en variables, cálculo de subescalas y deltas).
+                </p>
+
+                <div class="row g-3">
+                    <!-- Export Evaluaciones -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-4 border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1"><i class="bi bi-file-earmark-spreadsheet-fill text-success me-1"></i> Evaluaciones (Pre/Post)</h6>
+                                <p class="text-muted small mb-3">Puntajes totales, dimensiones y deltas emparejados por código.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'research:export_dataset' dataset='evaluaciones' file_format='csv' %}" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1">
+                                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                                </a>
+                                <a href="{% url 'research:export_dataset' dataset='evaluaciones' file_format='xlsx' %}" class="btn btn-success btn-sm rounded-pill flex-grow-1">
+                                    <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Chatbot Usage -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-4 border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1"><i class="bi bi-robot text-teal me-1" style="color: #0d9488;"></i> Métricas Previene+</h6>
+                                <p class="text-muted small mb-3">Sesiones, mensajes, duración y categorías temáticas consultadas.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'research:export_dataset' dataset='chatbot' file_format='csv' %}" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1">
+                                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                                </a>
+                                <a href="{% url 'research:export_dataset' dataset='chatbot' file_format='xlsx' %}" class="btn btn-success btn-sm rounded-pill flex-grow-1">
+                                    <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Participantes -->
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded-4 border d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0"><i class="bi bi-people-fill text-primary me-1"></i> Padrón de Participantes Pseudonimizados</h6>
+                                <span class="text-muted small">Listado de códigos, asignación de grupo y estado en el estudio.</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'research:export_dataset' dataset='participants' file_format='csv' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                                </a>
+                                <a href="{% url 'research:export_dataset' dataset='participants' file_format='xlsx' %}" class="btn btn-success btn-sm rounded-pill px-3">
+                                    <i class="bi bi-file-earmark-excel me-1"></i> Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage Gates Control Form -->
+        <div class="col-lg-5">
+            <div class="glass-card p-4 shadow-sm h-100">
+                <h5 class="fw-bold text-dark mb-2">
+                    <i class="bi bi-sliders text-secondary me-2"></i>Control Global de Etapas del Estudio
+                </h5>
+                <p class="text-muted small mb-3">Habilita o bloquea el acceso a las fases para los estudiantes.</p>
+
+                <form method="post" action="{% url 'research:update_stage_settings' %}">
+                    {% csrf_token %}
+                    <div class="form-check form-switch p-3 bg-light rounded-3 border mb-2 d-flex justify-content-between align-items-center">
+                        <label class="form-check-label fw-semibold text-dark mb-0" for="switchPretest">
+                            <i class="bi bi-pencil-square text-primary me-2"></i> Etapa Pretest
+                        </label>
+                        <input class="form-check-input ms-0" type="checkbox" role="switch" id="switchPretest" name="pretest_open" {% if settings.pretest_stage_open %}checked{% endif %}>
+                    </div>
+
+                    <div class="form-check form-switch p-3 bg-light rounded-3 border mb-2 d-flex justify-content-between align-items-center">
+                        <label class="form-check-label fw-semibold text-dark mb-0" for="switchIntervention">
+                            <i class="bi bi-chat-dots-fill text-teal me-2" style="color: #0d9488;"></i> Intervención Previene+
+                        </label>
+                        <input class="form-check-input ms-0" type="checkbox" role="switch" id="switchIntervention" name="intervention_open" {% if settings.intervention_stage_open %}checked{% endif %}>
+                    </div>
+
+                    <div class="form-check form-switch p-3 bg-light rounded-3 border mb-3 d-flex justify-content-between align-items-center">
+                        <label class="form-check-label fw-semibold text-dark mb-0" for="switchPostest">
+                            <i class="bi bi-card-checklist text-success me-2"></i> Etapa Postest
+                        </label>
+                        <input class="form-check-input ms-0" type="checkbox" role="switch" id="switchPostest" name="postest_open" {% if settings.postest_stage_open %}checked{% endif %}>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-semibold">
+                        <i class="bi bi-save me-1"></i> Guardar Configuración de Etapas
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

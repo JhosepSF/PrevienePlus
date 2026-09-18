@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ document.title }} | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Document View -->
+            <div class="glass-card p-4 p-md-5 mb-4 shadow-sm">
+                <div class="mb-3">
+                    <a href="{% url 'knowledge:index' %}" class="btn btn-outline-secondary btn-sm rounded-pill mb-3">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al Directorio de Conocimiento
+                    </a>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-primary px-3 py-1 rounded-pill">{{ document.category.name }}</span>
+                        <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill">{{ document.publication_year }}</span>
+                    </div>
+                    <h2 class="display-6 fw-bold text-dark mb-2">{{ document.title }}</h2>
+                    <div class="text-muted small">
+                        <i class="bi bi-building me-1"></i> <strong>Fuente / Institución:</strong> {{ document.source_institution }}
+                        {% if document.reference_url %}
+                            • <i class="bi bi-link-45deg me-1"></i> <em>{{ document.reference_url }}</em>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Content -->
+                <div class="p-3 bg-light rounded-4 border mb-4">
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-file-text-fill text-primary me-2"></i>Contenido Oficial Validado:</h5>
+                    <div class="text-dark" style="line-height: 1.8; font-size: 1rem;">
+                        {{ document.full_content|linebreaks }}
+                    </div>
+                </div>
+
+                <!-- Chunks breakdown -->
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-puzzle-fill text-info me-2"></i>Fragmentos Generados para Recuperación RAG ({{ document.chunks.count }})</h5>
+                <div class="row g-3">
+                    {% for chunk in document.chunks.all %}
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border h-100 shadow-sm">
+                                <div class="d-flex justify-content-between mb-2 small text-muted">
+                                    <span class="badge bg-light text-dark border">Fragmento #{{ chunk.order }}</span>
+                                    <span>{% if chunk.is_active %}<i class="bi bi-check-circle-fill text-success"></i> Activo{% endif %}</span>
+                                </div>
+                                <p class="small text-dark mb-2">{{ chunk.chunk_text }}</p>
+                                {% if chunk.keywords %}
+                                    <div class="text-muted" style="font-size: 0.72rem;">
+                                        <strong>Palabras clave:</strong> {{ chunk.keywords }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ assessment.title }} | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <!-- Assessment Header Card -->
+            <div class="glass-card p-4 p-md-5 mb-4 shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="logo-badge" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+                        <div>
+                            <span class="badge {% if assessment_type == 'pretest' %}bg-primary{% else %}bg-success{% endif %} px-3 py-1 rounded-pill mb-1">
+                                {{ assessment.get_assessment_type_display }}
+                            </span>
+                            <h3 class="fw-bold text-dark mb-0">{{ assessment.title }}</h3>
+                        </div>
+                    </div>
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold" style="font-size: 0.88rem;">
+                        <i class="bi bi-person-circle me-1"></i> Participante: {{ profile.student_code }}
+                    </span>
+                </div>
+
+                <div class="p-3 bg-light rounded-4 border text-muted small mb-3" style="line-height: 1.6;">
+                    <i class="bi bi-info-circle-fill text-primary me-1"></i> <strong>Instrucciones:</strong> {{ assessment.instructions }}
+                </div>
+
+                <!-- Progress Header -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-semibold">Avance del Cuestionario</span>
+                    <span class="fw-bold text-primary small" id="progressCount">Total: {{ total_questions }} preguntas</span>
+                </div>
+                <div class="progress progress-previene">
+                    <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="post" id="assessmentForm">
+                {% csrf_token %}
+
+                {% for q in questions %}
+                    <div class="glass-card p-4 mb-4 shadow-sm border-0 position-relative">
+                        <!-- Question Header -->
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold">
+                                Pregunta {{ forloop.counter }} de {{ total_questions }}
+                            </span>
+                            <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1 small">
+                                <i class="bi bi-bookmark-fill text-info me-1"></i> {{ q.dimension.name }}
+                            </span>
+                        </div>
+
+                        <!-- Question Statement -->
+                        <h5 class="fw-bold text-dark mb-3" style="line-height: 1.5;">
+                            {{ q.question_text }}
+                        </h5>
+
+                        <!-- Options List -->
+                        <div class="d-flex flex-column gap-2.5">
+                            {% for opt in q.options.all %}
+                                <label class="question-option-card d-flex align-items-center gap-3 m-0" for="opt_{{ opt.id }}">
+                                    <input 
+                                        class="form-check-input flex-shrink-0" 
+                                        type="radio" 
+                                        name="question_{{ q.id }}" 
+                                        id="opt_{{ opt.id }}" 
+                                        value="{{ opt.id }}" 
+                                        {% if existing_responses|dictsort:q.id == opt.id %}checked{% endif %}
+                                        required
+                                    >
+                                    <span class="option-content text-dark flex-grow-1" style="font-size: 0.95rem;">
+                                        {{ opt.option_text }}
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Submission Box -->
+                <div class="glass-card p-4 text-center shadow-lg border-primary border-opacity-25 mt-4">
+                    <h5 class="fw-bold text-dark mb-2">¿Has completado todas las preguntas?</h5>
+                    <p class="text-muted small mb-4">
+                        Al presionar "Enviar y Finalizar", tus respuestas se registrarán en la base de datos de investigación y no podrán ser modificadas.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                            Volver al Panel
+                        </a>
+                        <button type="submit" class="btn btn-primary-gradient px-5 py-2.5 rounded-pill fw-bold fs-6">
+                            <i class="bi bi-check2-circle me-1"></i> Enviar y Finalizar {{ assessment.get_assessment_type_display }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

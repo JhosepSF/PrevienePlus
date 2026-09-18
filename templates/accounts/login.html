@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingreso al Sistema | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center align-items-center g-4">
+        <!-- Left Column: Educational Brand Presentation -->
+        <div class="col-lg-6">
+            <div class="pe-lg-4 text-center text-lg-start">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-primary-subtle text-primary fw-semibold mb-3 border" style="font-size: 0.85rem;">
+                    <i class="bi bi-stars"></i> Asistente Educativo con Inteligencia Artificial
+                </div>
+                <h1 class="display-5 fw-extrabold text-dark mb-3">
+                    Aprende, cuídate y decide con <span class="text-primary">Previene<span class="text-info">+</span></span>
+                </h1>
+                <p class="lead text-muted mb-4" style="font-size: 1.08rem;">
+                    Plataforma interactiva para la orientación y prevención de Infecciones de Transmisión Sexual (ITS), 
+                    con información validada por el Ministerio de Salud (MINSA) y organismos internacionales de salud.
+                </p>
+
+                <!-- Value Props -->
+                <div class="row g-3 text-start">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start gap-2.5 p-3 rounded-4 bg-white border shadow-sm h-100">
+                            <i class="bi bi-shield-check text-primary fs-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Información Científica</h6>
+                                <p class="text-muted small mb-0">Contenidos oficiales sin mitos ni estigmas.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-start gap-2.5 p-3 rounded-4 bg-white border shadow-sm h-100">
+                            <i class="bi bi-incognito text-teal fs-3" style="color: #0d9488;"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">100% Confidencial</h6>
+                                <p class="text-muted small mb-0">Acceso mediante código pseudonimizado seguro.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Login Card -->
+        <div class="col-lg-5 col-md-8">
+            <div class="glass-card p-4 p-md-5 shadow-lg">
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-pill" id="loginTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-semibold {% if active_tab == 'student' %}active bg-primary text-white shadow-sm{% else %}text-muted{% endif %}" id="student-tab" data-bs-toggle="pill" data-bs-target="#student-pane" type="button" role="tab">
+                            <i class="bi bi-person-fill me-1"></i> Estudiante
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-semibold {% if active_tab == 'researcher' %}active bg-dark text-white shadow-sm{% else %}text-muted{% endif %}" id="researcher-tab" data-bs-toggle="pill" data-bs-target="#researcher-pane" type="button" role="tab">
+                            <i class="bi bi-shield-lock me-1"></i> Investigador
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="loginTabContent">
+                    <!-- Student Login Pane -->
+                    <div class="tab-pane fade {% if active_tab == 'student' %}show active{% endif %}" id="student-pane" role="tabpanel">
+                        <div class="text-center mb-4">
+                            <div class="logo-badge mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.3rem;">
+                                <i class="bi bi-key-fill"></i>
+                            </div>
+                            <h4 class="fw-bold mb-1">Ingresa tu Código</h4>
+                            <p class="text-muted small">Ingresa el código que te entregó el facilitador para acceder a tu sesión.</p>
+                        </div>
+
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="student_login">
+
+                            <div class="mb-4">
+                                <label for="student_code_input" class="form-label text-muted small fw-semibold text-uppercase letter-spacing-1">Código Asignado</label>
+                                {{ student_form.student_code }}
+                                <div class="form-text text-center mt-2 text-muted" style="font-size: 0.8rem;">
+                                    Ejemplos de prueba: <code>EXP-001</code> (Experimental) o <code>CTR-001</code> (Control)
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-gradient w-100 py-2.5 fs-6 rounded-pill d-flex align-items-center justify-content-center gap-2">
+                                <span>Ingresar al Estudio</span>
+                                <i class="bi bi-arrow-right-circle-fill"></i>
+                            </button>
+                        </form>
+
+                        <div class="mt-4 pt-3 border-top text-center text-muted small">
+                            <i class="bi bi-lock-fill text-primary me-1"></i> Tu participación es estrictamente confidencial. No se recopilan nombres ni datos personales.
+                        </div>
+                    </div>
+
+                    <!-- Researcher Login Pane -->
+                    <div class="tab-pane fade {% if active_tab == 'researcher' %}show active{% endif %}" id="researcher-pane" role="tabpanel">
+                        <div class="text-center mb-4">
+                            <div class="badge bg-dark-subtle text-dark p-3 rounded-circle mb-2 fs-4">
+                                <i class="bi bi-person-gear"></i>
+                            </div>
+                            <h4 class="fw-bold mb-1">Panel de Investigación</h4>
+                            <p class="text-muted small">Acceso exclusivo para docentes y administradores del estudio.</p>
+                        </div>
+
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="researcher_login">
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-semibold">Usuario</label>
+                                {{ researcher_form.username }}
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-semibold">Contraseña</label>
+                                {{ researcher_form.password }}
+                            </div>
+
+                            <button type="submit" class="btn btn-dark w-100 py-2.5 rounded-pill fw-semibold">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión de Investigador
+                            </button>
+                        </form>
+
+                        <div class="mt-4 pt-3 border-top text-center text-muted small">
+                            Usuario por defecto de prueba: <code>admin</code> / <code>admin123</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

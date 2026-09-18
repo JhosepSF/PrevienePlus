@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Base de Conocimiento Validada (RAG) | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="glass-card p-4 mb-4 shadow-sm border-0">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <span class="badge bg-teal-subtle text-teal border px-3 py-1.5 rounded-pill mb-2" style="background-color: #ccfbf1; color: #0f766e;">
+                    <i class="bi bi-shield-check me-1"></i> Fuentes Validadas
+                </span>
+                <h2 class="display-6 fw-extrabold text-dark mb-1">Base de Conocimiento para IA (RAG)</h2>
+                <p class="text-muted small mb-0">Documentación científica y normativa oficial de MINSA Perú, OPS y OMS indexada para el chatbot.</p>
+            </div>
+            <a href="/admin/knowledge/knowledgedocument/add/" target="_blank" class="btn btn-primary-gradient rounded-pill px-4 fw-semibold">
+                <i class="bi bi-plus-circle me-1"></i> Agregar Documento
+            </a>
+        </div>
+    </div>
+
+    <!-- Categories & Documents -->
+    <div class="row g-4">
+        {% for cat in categories %}
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card p-4 h-100 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="badge bg-primary-subtle text-primary p-2.5 rounded-3 fs-5">
+                                <i class="bi {{ cat.icon }}"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0">{{ cat.name }}</h5>
+                                <span class="text-muted small">{{ cat.documents.count }} documentos</span>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">{{ cat.description }}</p>
+
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            {% for doc in cat.documents.all %}
+                                <a href="{% url 'knowledge:document_detail' doc_id=doc.id %}" class="p-2.5 bg-light rounded-3 text-decoration-none text-dark border d-block">
+                                    <div class="fw-semibold small text-primary text-truncate">{{ doc.title }}</div>
+                                    <div class="text-muted d-flex justify-content-between mt-1" style="font-size: 0.75rem;">
+                                        <span>{{ doc.source_institution }}</span>
+                                        <span>{{ doc.publication_year }}</span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-top text-end">
+                        <span class="badge bg-light text-muted border px-2.5 py-1 small">
+                            Indexado para RAG ✓
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center text-muted py-5">
+                <i class="bi bi-journal-x fs-1 d-block mb-2"></i>
+                No hay categorías ni documentos registrados en la base de conocimiento.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Asentimiento y Consentimiento Informado | Previene+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 p-md-5 shadow-lg">
+                <!-- Header -->
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div class="logo-badge" style="width: 52px; height: 52px; font-size: 1.5rem;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary-subtle text-primary border mb-1">Ética e Investigación Escolar</span>
+                        <h3 class="fw-bold mb-0">Hoja Informativa y Asentimiento Informado</h3>
+                    </div>
+                </div>
+
+                <div class="bg-light p-3 rounded-4 border mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Código de Participante Asignado:</span>
+                        <span class="badge bg-primary text-white px-3 py-2 rounded-pill fs-6">{{ profile.student_code }}</span>
+                    </div>
+                </div>
+
+                <!-- Terms Text -->
+                <div class="terms-content text-muted pe-1" style="line-height: 1.7; font-size: 0.96rem;">
+                    <h5 class="fw-bold text-dark mb-2">1. ¿Cuál es el objetivo del proyecto Previene+?</h5>
+                    <p>
+                        Te invitamos a participar en un estudio educativo que busca evaluar la efectividad de herramientas interactivas 
+                        con inteligencia artificial para brindar información clara, preventiva y científicamente fundamentada sobre 
+                        la prevención de Infecciones de Transmisión Sexual (ITS).
+                    </p>
+
+                    <h5 class="fw-bold text-dark mb-2">2. ¿En qué consistirá tu participación?</h5>
+                    <ul class="ps-3 mb-3">
+                        <li>Responder un cuestionario inicial (Pretest) de preguntas sobre conocimientos y prácticas preventivas.</li>
+                        <li>Participar en una etapa de aprendizaje (con el asistente Previene+ o actividades educativas guiadas).</li>
+                        <li>Responder un cuestionario final (Postest) para conocer lo aprendido.</li>
+                    </ul>
+
+                    <h5 class="fw-bold text-dark mb-2">3. Protección estricta de tu privacidad y anonimato</h5>
+                    <p>
+                        <strong>Tu participación es 100% confidencial y pseudonimizada.</strong> No se solicitará tu nombre, apellido, 
+                        DNI, teléfono ni correo electrónico. Todo tu progreso se registrará únicamente bajo el código alfanumérico 
+                        que se te ha entregado (<code>{{ profile.student_code }}</code>).
+                    </p>
+
+                    <h5 class="fw-bold text-dark mb-2">4. Participación voluntaria</h5>
+                    <p class="mb-0">
+                        Tu participación es totalmente libre y voluntaria. Puedes decidir no participar o retirarte en cualquier momento 
+                        sin ninguna consecuencia académica ni personal.
+                    </p>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Acceptance Actions -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-check mb-4 p-3 bg-primary-subtle rounded-3 border border-primary-subtle">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="checkAgree" required>
+                        <label class="form-check-label text-dark fw-semibold" for="checkAgree" style="font-size: 0.95rem;">
+                            He leído la información anterior, comprendo los objetivos del estudio y acepto voluntariamente participar.
+                        </label>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row gap-3 justify-content-end">
+                        <button type="submit" name="consent_action" value="decline" class="btn btn-outline-secondary rounded-pill px-4 py-2 order-2 order-sm-1">
+                            <i class="bi bi-x-circle me-1"></i> No deseo participar
+                        </button>
+                        <button type="submit" name="consent_action" value="accept" class="btn btn-primary-gradient rounded-pill px-5 py-2.5 fs-6 order-1 order-sm-2">
+                            <i class="bi bi-check2-circle me-1"></i> Aceptar y Comenzar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

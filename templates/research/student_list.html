@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Participantes | Previene+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <span class="badge bg-primary text-white px-3 py-1.5 rounded-pill mb-1">
+                <i class="bi bi-people-fill me-1"></i> Padrón de Investigación
+            </span>
+            <h2 class="display-6 fw-extrabold text-dark mb-0">Gestión de Participantes</h2>
+            <p class="text-muted small mb-0">Códigos pseudonimizados, asignación de grupos y seguimiento individual.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary-gradient rounded-pill px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#generateModal">
+                <i class="bi bi-plus-circle me-1"></i> Generar Códigos en Lote
+            </button>
+            <a href="{% url 'research:dashboard' %}" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Volver a Métricas
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="glass-card p-3 mb-4 shadow-sm">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ search_q }}" class="form-control border-start-0" placeholder="Buscar por código (ej. EXP-001)...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="group" class="form-select">
+                    <option value="">-- Todos los Grupos --</option>
+                    <option value="EXPERIMENTAL" {% if group_filter == 'EXPERIMENTAL' %}selected{% endif %}>Grupo Experimental (Previene+)</option>
+                    <option value="CONTROL" {% if group_filter == 'CONTROL' %}selected{% endif %}>Grupo Control (Tradicional)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="stage" class="form-select">
+                    <option value="">-- Todas las Etapas --</option>
+                    <option value="CONSENT" {% if stage_filter == 'CONSENT' %}selected{% endif %}>Asentimiento</option>
+                    <option value="PRETEST" {% if stage_filter == 'PRETEST' %}selected{% endif %}>Pretest</option>
+                    <option value="INTERVENTION" {% if stage_filter == 'INTERVENTION' %}selected{% endif %}>Intervención</option>
+                    <option value="POSTEST" {% if stage_filter == 'POSTEST' %}selected{% endif %}>Postest</option>
+                    <option value="COMPLETED" {% if stage_filter == 'COMPLETED' %}selected{% endif %}>Completado</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-dark w-100 rounded-pill fw-semibold">Filtrar</button>
+                <a href="{% url 'research:student_list' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Students Table Card -->
+    <div class="glass-card p-4 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Grupo de Estudio</th>
+                        <th>Etapa Actual</th>
+                        <th>Asentimiento</th>
+                        <th>Pretest</th>
+                        <th>Intervención IA</th>
+                        <th>Postest</th>
+                        <th>Registrado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                        <tr>
+                            <td class="fw-bold">
+                                <span class="badge bg-light text-dark border px-2.5 py-1.5 font-monospace fs-6">
+                                    {{ s.student_code }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if s.is_experimental %}
+                                    <span class="badge bg-primary-subtle text-primary border border-primary px-2.5 py-1 rounded-pill">
+                                        Experimental
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 rounded-pill">
+                                        Control
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill">
+                                    {{ s.get_stage_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if s.consent_given %}
+                                    <span class="badge bg-success-subtle text-success border border-success">Aceptado ✓</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with pre=s.student_assessments.all|dictsort:"assessment_type" %}
+                                    {% for a in s.student_assessments.all %}
+                                        {% if a.assessment_type == 'PRETEST' and a.is_submitted %}
+                                            <span class="badge bg-primary px-2.5 py-1 rounded-pill fw-bold" title="Dim1: {{ a.score_dimension_1 }} | Dim2: {{ a.score_dimension_2 }}">
+                                                {{ a.total_score }} pts
+                                            </span>
+                                        {% endif %}
+                                    {% empty %}
+                                        <span class="text-muted small">-</span>
+                                    {% endfor %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if s.is_experimental %}
+                                    {% if s.intervention_completed %}
+                                        <span class="badge bg-success-subtle text-success border border-success">Completada ✓</span>
+                                    {% elif s.stage == 'INTERVENTION' %}
+                                        <span class="badge bg-info-subtle text-info border border-info">En Curso 🚀</span>
+                                    {% else %}
+                                        <span class="text-muted small">No iniciada</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Tradicional</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for a in s.student_assessments.all %}
+                                    {% if a.assessment_type == 'POSTEST' and a.is_submitted %}
+                                        <span class="badge bg-success px-2.5 py-1 rounded-pill fw-bold" title="Dim1: {{ a.score_dimension_1 }} | Dim2: {{ a.score_dimension_2 }}">
+                                            {{ a.total_score }} pts
+                                        </span>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-muted small">-</span>
+                                {% endfor %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ s.created_at|date:"d/m/Y" }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                                No se encontraron participantes registrados con los filtros seleccionados.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Batch Code Generator -->
+<div class="modal fade" id="generateModal" tabindex="-1" aria-labelledby="generateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-card border-0 shadow-lg">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="generateModalLabel">
+                    <i class="bi bi-people-fill text-primary me-2"></i>Generar Códigos de Estudiantes en Lote
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="post" action="{% url 'research:generate_students' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark small">Grupo de Investigación</label>
+                        {{ batch_form.group }}
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-dark small">Prefijo del Código</label>
+                            {{ batch_form.prefix }}
+                            <div class="form-text small">Ej. <code>EXP</code> o <code>CTR</code></div>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-dark small">Número Inicial</label>
+                            {{ batch_form.start_number }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark small">Cantidad de Participantes a Crear</label>
+                        {{ batch_form.quantity }}
+                    </div>
+                    <div class="p-3 bg-light rounded-3 text-muted small">
+                        <i class="bi bi-shield-check text-success me-1"></i> Se generarán usuarios anónimos con credenciales de acceso directo por código alfanumérico.
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary-gradient rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-check-lg me-1"></i> Generar Participantes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

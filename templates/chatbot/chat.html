@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Chatbot Previene+ | Orientación Educativa con IA{% endblock %}
+
+{% block content %}
+<div class="container py-1 py-md-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <!-- Chat Card Container -->
+            <div class="glass-card chat-card-wrapper shadow-lg border-0 overflow-hidden">
+                <!-- Chat Top Header -->
+                <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between flex-shrink-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="logo-badge" style="width: 42px; height: 42px; font-size: 1.2rem;">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h5 class="fw-bold text-dark mb-0">Previene<span class="text-info">+</span></h5>
+                                <span class="badge bg-success-subtle text-success border border-success px-2 py-0.5" style="font-size: 0.72rem;">
+                                    <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> En Línea
+                                </span>
+                            </div>
+                            <span class="text-muted small" style="font-size: 0.78rem;">
+                                Asistente educativo RAG • Fuentes MINSA / OMS / OPS
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Questions Counter -->
+                        <span class="badge bg-light text-secondary border d-none d-sm-inline-block px-3 py-2 rounded-pill small">
+                            <i class="bi bi-chat-left-text-fill text-primary me-1"></i> <span id="userMsgCountBadge">{{ message_count }}</span> preguntas
+                        </span>
+
+                        <!-- Finish Intervention Button -->
+                        <form method="post" action="{% url 'chatbot:finish_intervention' %}" onsubmit="return confirm('¿Deseas concluir tu sesión con Previene+ y avanzar al Postest final?');" class="mb-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary-gradient btn-sm rounded-pill px-3 fw-semibold">
+                                <i class="bi bi-check2-all me-1"></i> Ir al Postest
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Scrollable Body -->
+                <div class="chat-container" id="chatContainer">
+                    {% for msg in chat_messages %}
+                        {% if msg.role == 'user' %}
+                            <div class="d-flex justify-content-end mb-3">
+                                <div class="chat-bubble chat-bubble-user">
+                                    <div>{{ msg.content|linebreaksbr }}</div>
+                                    <div class="text-end text-white-50 mt-1" style="font-size: 0.72rem;">
+                                        {{ msg.created_at|date:"H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif msg.role == 'assistant' %}
+                            <div class="d-flex justify-content-start mb-3">
+                                <div class="chat-bubble chat-bubble-assistant">
+                                    <div class="d-flex align-items-center mb-1 text-primary fw-bold" style="font-size: 0.85rem;">
+                                        <i class="bi bi-robot me-1"></i> Previene+ (Asistente Educativo)
+                                    </div>
+                                    <div>{{ msg.content|linebreaksbr }}</div>
+                                    {% if msg.sources_used %}
+                                        <div class="chat-sources-pill mt-2">
+                                            <i class="bi bi-shield-check text-primary me-1"></i>
+                                            <strong>Fuentes validadas:</strong> {{ msg.sources_used }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="text-muted text-end mt-1" style="font-size: 0.72rem;">
+                                        {{ msg.created_at|date:"H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Typing Indicator -->
+                    <div class="d-flex justify-content-start mb-3 d-none" id="chatTypingIndicator">
+                        <div class="chat-bubble chat-bubble-assistant py-2 px-3">
+                            <span class="text-muted small me-2">Previene+ está consultando la base de conocimiento</span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggested Quick Prompts Container -->
+                <div class="px-3 py-2 bg-light border-top border-bottom chips-scroll flex-shrink-0">
+                    <span class="text-muted small me-2 fw-semibold"><i class="bi bi-stars text-warning me-1"></i>Preguntas frecuentes:</span>
+                    <div class="d-inline-flex gap-2">
+                        {% for prompt in suggested_prompts %}
+                            <button type="button" class="chat-quick-chip" onclick="insertQuickPrompt('{{ prompt|escapejs }}')">
+                                {{ prompt }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Chat Input Footer -->
+                <div class="p-3 bg-white flex-shrink-0">
+                    <form id="chatForm" class="d-flex gap-2 align-items-center">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                class="form-control rounded-pill px-4 py-2.5 bg-light border" 
+                                id="chatInput" 
+                                placeholder="Escribe tu pregunta sobre prevención de ITS aquí..." 
+                                autocomplete="off" 
+                                required
+                            >
+                            <button type="submit" class="btn btn-primary-gradient rounded-pill px-4 ms-2" id="sendBtn">
+                                <span class="d-none d-sm-inline me-1">Enviar</span>
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="d-flex justify-content-between align-items-center mt-2 px-2 text-muted" style="font-size: 0.74rem;">
+                        <span><i class="bi bi-shield-lock-fill text-teal me-1"></i> Conversación educativa confidencial.</span>
+                        <span class="d-none d-md-inline">En caso de emergencia médica: Línea 113 Salud (MINSA Perú)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
