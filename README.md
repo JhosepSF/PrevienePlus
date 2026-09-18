@@ -22,7 +22,39 @@ Login (Código) ──> Asentimiento ──> Pretest ──> Intervención Tradi
 
 ---
 
-## 2. Tecnologías Principales
+## 2. Capturas de Pantalla del Sistema
+
+### 2.1. Panel del Estudiante y Roadmap de Aprendizaje
+Visualización clara y secuencial de las etapas del estudio (*Asentimiento*, *Pretest*, *Intervención* y *Postest*):
+
+![Panel del Estudiante](pantallas/Pantalla-Estudiante.jpeg)
+
+---
+
+### 2.2. Interfaz del Chatbot Educativo Previene+ (IA con RAG)
+Interacción educativa basada en fuentes validadas (MINSA / OMS / OPS), preguntas frecuentes y sugerencias rápidas:
+
+| Conversación Inicial | Respuestas con Fuentes Validadas |
+| :---: | :---: |
+| ![Chatbot Previene+ 1](pantallas/Chatbot-1.jpeg) | ![Chatbot Previene+ 2](pantallas/Chatbot-2.jpeg) |
+
+---
+
+### 2.3. Panel del Investigador y Métricas Cuasiexperimentales
+Métricas en tiempo real, matriz estadística descriptiva (Pretest vs Postest, subescalas por dimensiones y deltas) y centro de exportación científica:
+
+#### Indicadores Globales y Métricas de Participación
+![Panel Investigador - Métricas](pantallas/Pantalla-Investigador-1.jpeg)
+
+#### Matriz Estadística Comparativa (Pretest vs Postest y Cálculo de Ganancia $\Delta$)
+![Panel Investigador - Comparación Estadística](pantallas/Pantalla-Investigador-2.jpeg)
+
+#### Centro de Exportación (CSV / XLSX) y Control de Etapas
+![Panel Investigador - Exportación y Etapas](pantallas/Pantalla-Investigador-3.jpeg)
+
+---
+
+## 3. Tecnologías Principales
 
 * **Backend:** Python 3.12, Django 5.2 LTS.
 * **Base de Datos:** SQLite (robusta, portable y lista para pruebas inmediatas).
@@ -32,7 +64,7 @@ Login (Código) ──> Asentimiento ──> Pretest ──> Intervención Tradi
 
 ---
 
-## 3. Estructura del Proyecto
+## 4. Estructura del Proyecto
 
 ```
 Previene+/
@@ -58,7 +90,7 @@ Previene+/
 
 ---
 
-## 4. Guía de Instalación y Ejecución Local (Windows / PowerShell)
+## 5. Guía de Instalación y Ejecución Local (Windows / PowerShell)
 
 ### Paso 1: Clonar o situarse en el directorio del proyecto
 ```powershell
@@ -101,7 +133,7 @@ Accede en tu navegador a: **`http://127.0.0.1:8000/`**
 
 ---
 
-## 5. Cuentas y Códigos de Demostración
+## 6. Cuentas y Códigos de Demostración
 
 | Rol | Identificador / Código | Contraseña | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -113,14 +145,14 @@ Accede en tu navegador a: **`http://127.0.0.1:8000/`**
 
 ---
 
-## 6. Módulos y Funcionalidades Principales
+## 7. Módulos y Funcionalidades Principales
 
-### 6.1. Motor de Evaluaciones (`evaluations`)
+### 7.1. Motor de Evaluaciones (`evaluations`)
 * **Dimensión 1:** *Conocimientos sobre prevención de infecciones de transmisión sexual.*
 * **Dimensión 2:** *Prácticas preventivas frente a infecciones de transmisión sexual.*
 * Preguntas con tipos de opción múltiple, verdadero/falso y escala Likert con ponderaciones automáticas.
 
-### 6.2. Chatbot Previene+ e IA Segura (`chatbot`)
+### 7.2. Chatbot Previene+ e IA Segura (`chatbot`)
 * **Prompt Seguro Versionado (`v1.0-research-safe`):**
   * Tono empático, no moralizante, no estigmatizante y adecuado para adolescentes.
   * No realiza diagnósticos médicos ni prescripciones; ante signos de alarma o dudas deriva a la **Línea 113 Salud del MINSA (opción 3)**.
@@ -129,7 +161,7 @@ Accede en tu navegador a: **`http://127.0.0.1:8000/`**
 * **Registro de Reproducibilidad Científica (`InterventionConfigLog`):**
   * Almacena inmutablemente la versión del modelo, versión del prompt, versión de la base y fecha/hora exacta de cada intervención.
 
-### 6.3. Panel de Investigación y Exportación (`research`)
+### 7.3. Panel de Investigación y Exportación (`research`)
 * Visualización en tiempo real de $N$, participantes por grupo, tasas de finalización, medias por dimensión y deltas de ganancia.
 * Generador de códigos en lote para nuevos participantes (ej. `EXP-010...EXP-050`).
 * Descarga de archivos estructurados en `.csv` y `.xlsx`:
@@ -139,7 +171,7 @@ Accede en tu navegador a: **`http://127.0.0.1:8000/`**
 
 ---
 
-## 7. Ejecución de Pruebas Automatizadas
+## 8. Ejecución de Pruebas Automatizadas
 
 Para validar todos los módulos, permisos de grupo, RAG y exportación:
 ```powershell
@@ -148,7 +180,7 @@ python manage.py test
 
 ---
 
-## 8. Despliegue en Producción (Render / Railway)
+## 9. Despliegue en Producción (Render / Railway)
 
 1. El repositorio incluye `Procfile` y `runtime.txt`.
 2. Las variables de entorno recomendadas para producción son:
