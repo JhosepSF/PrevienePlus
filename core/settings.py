@@ -80,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database configuration: Supports PostgreSQL (via DATABASE_URL on Render/Railway) with fallback to SQLite
+# Database configuration: Supports PostgreSQL (via DATABASE_URL or individual DB_* vars) with fallback to SQLite
 import dj_database_url
 
 DATABASES = {
@@ -97,6 +97,16 @@ if database_url:
         conn_max_age=600,
         conn_health_checks=True,
     )
+elif os.getenv('DB_NAME') and os.getenv('DB_USER') and os.getenv('DB_HOST'):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 600,
+    }
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
