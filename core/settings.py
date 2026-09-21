@@ -80,13 +80,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database configuration: SQLite database for maximum portability & reliability
+# Database configuration: Supports PostgreSQL (via DATABASE_URL on Render/Railway) with fallback to SQLite
+import dj_database_url
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    DATABASES['default'] = dj_database_url.config(
+        default=database_url,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
